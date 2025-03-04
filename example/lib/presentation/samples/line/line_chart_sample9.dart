@@ -9,7 +9,7 @@ class LineChartSample9 extends StatelessWidget {
   LineChartSample9({super.key});
 
   final spots = List.generate(101, (i) => (i - 50) / 10)
-      .map((x) => FlSpot(x, cos(x)))
+      .map((x) => FlSpot(x, cos(x), isTouched: (x * 100) % 3 == 0))
       .toList();
 
   Widget bottomTitleWidgets(double value, TitleMeta meta, double chartWidth) {
@@ -82,13 +82,26 @@ class LineChartSample9 extends StatelessWidget {
                   LineChartBarData(
                     color: AppColors.contentColorPink,
                     spots: spots,
-                    isCurved: true,
-                    isStrokeCapRound: true,
+                    isCurved: false,
+                    isStrokeCapRound: false,
                     barWidth: 3,
                     belowBarData: BarAreaData(
                       show: false,
                     ),
-                    dotData: const FlDotData(show: false),
+                    dotData: FlDotData(
+                      show: true,
+                      checkToShowDot: (spot, barData) {
+                        return spot.isTouched;
+                      },
+                      getDotPainter: (p0, p1, p2, p3) {
+                        return FlDotCirclePainter(
+                          radius: 8,
+                          color: AppColors.contentColorPink,
+                          strokeWidth: 3,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
                   ),
                 ],
                 minY: -1.5,
@@ -143,7 +156,7 @@ class LineChartSample9 extends StatelessWidget {
                     return value.toInt() == 0;
                   },
                 ),
-                borderData: FlBorderData(show: false),
+                borderData: FlBorderData(show: true),
               ),
             );
           },

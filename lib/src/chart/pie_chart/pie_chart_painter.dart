@@ -176,8 +176,107 @@ class PieChartPainter extends BaseChartPainter<PieChartData> {
 
       drawSection(section, sectionPath, canvasWrapper);
       drawSectionStroke(section, sectionPath, canvasWrapper, viewSize);
+
+      if (section.isTouched) {
+        drawSection(
+          section,
+          generateSectionPath2(
+            section,
+            data.sectionsSpace,
+            tempAngle,
+            sectionDegree,
+            center,
+            centerRadius,
+          ),
+          canvasWrapper,
+          opacity: 0.5,
+        );
+      }
       tempAngle += sectionDegree;
     }
+  }
+
+  /// Generates a path around a section
+  @visibleForTesting
+  Path generateSectionPath2(
+    PieChartSectionData section,
+    double sectionSpace,
+    double tempAngle,
+    double sectionDegree,
+    Offset center,
+    double centerRadius,
+  ) {
+    final sectionRadiusRect = Rect.fromCircle(
+      center: center,
+      radius: centerRadius + section.radius + section.marginTouchedRadius,
+    );
+
+    final centerRadiusRect = Rect.fromCircle(
+      center: center,
+      radius: centerRadius +
+          section.radius +
+          section.touchedRadius +
+          section.marginTouchedRadius,
+    );
+
+    final startRadians = Utils().radians(tempAngle);
+    final sweepRadians = Utils().radians(sectionDegree);
+    final endRadians = startRadians + sweepRadians;
+
+    final startLineDirection =
+        Offset(math.cos(startRadians), math.sin(startRadians));
+
+    final startLineFrom = center + startLineDirection * centerRadius;
+    final startLineTo = startLineFrom + startLineDirection * section.radius;
+    final startLine = Line(startLineFrom, startLineTo);
+
+    final endLineDirection = Offset(math.cos(endRadians), math.sin(endRadians));
+
+    final endLineFrom = center + endLineDirection * centerRadius;
+    final endLineTo = endLineFrom + endLineDirection * section.radius;
+    final endLine = Line(endLineFrom, endLineTo);
+
+    var sectionPath = Path()
+      ..moveTo(startLine.from.dx, startLine.from.dy)
+      ..lineTo(startLine.to.dx, startLine.to.dy)
+      ..arcTo(sectionRadiusRect, startRadians, sweepRadians, false)
+      ..lineTo(endLine.from.dx, endLine.from.dy)
+      ..arcTo(centerRadiusRect, endRadians, -sweepRadians, false)
+      ..moveTo(startLine.from.dx, startLine.from.dy)
+      ..close();
+
+    /// Subtract section space from the sectionPath
+    if (sectionSpace != 0) {
+      final startLineSeparatorPath = createRectPathAroundLine(
+        Line(startLineFrom, startLineTo),
+        sectionSpace,
+      );
+      try {
+        sectionPath = Path.combine(
+          PathOperation.difference,
+          sectionPath,
+          startLineSeparatorPath,
+        );
+      } catch (e) {
+        /// It's a flutter engine issue with [Path.combine] in web-html renderer
+        /// https://github.com/imaNNeo/fl_chart/issues/955
+      }
+
+      final endLineSeparatorPath =
+          createRectPathAroundLine(Line(endLineFrom, endLineTo), sectionSpace);
+      try {
+        sectionPath = Path.combine(
+          PathOperation.difference,
+          sectionPath,
+          endLineSeparatorPath,
+        );
+      } catch (e) {
+        /// It's a flutter engine issue with [Path.combine] in web-html renderer
+        /// https://github.com/imaNNeo/fl_chart/issues/955
+      }
+    }
+
+    return sectionPath;
   }
 
   /// Generates a path around a section
@@ -310,11 +409,12 @@ class PieChartPainter extends BaseChartPainter<PieChartData> {
   void drawSection(
     PieChartSectionData section,
     Path sectionPath,
-    CanvasWrapper canvasWrapper,
-  ) {
+    CanvasWrapper canvasWrapper, {
+    double opacity = 1,
+  }) {
     _sectionPaint
       ..setColorOrGradient(
-        section.color,
+        opacity == 1 ? section.color : section.color.withOpacity(opacity),
         section.gradient,
         sectionPath.getBounds(),
       )
@@ -433,6 +533,8 @@ class PieChartPainter extends BaseChartPainter<PieChartData> {
     return (viewSize.shortestSide - (maxRadius * 2)) / 2;
   }
 
+  int foundSectionDataPosition = -1;
+
   /// Makes a [PieTouchedSection] based on the provided [localPosition]
   ///
   /// Processes [localPosition] and checks
@@ -459,7 +561,6 @@ class PieChartPainter extends BaseChartPainter<PieChartData> {
     touchAngle = touchAngle < 0 ? (180 - touchAngle.abs()) + 180 : touchAngle;
 
     PieChartSectionData? foundSectionData;
-    var foundSectionDataPosition = -1;
 
     var tempAngle = data.startDegreeOffset;
     for (var i = 0; i < data.sections.length; i++) {
@@ -496,7 +597,7 @@ class PieChartPainter extends BaseChartPainter<PieChartData> {
 
       tempAngle += sectionAngle;
     }
-
+    
     return PieTouchedSection(
       foundSectionData,
       foundSectionDataPosition,

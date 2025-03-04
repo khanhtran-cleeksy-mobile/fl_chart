@@ -361,7 +361,8 @@ class LineChartPainter extends AxisChartPainter<LineChartData> {
 
     for (var i = 0; i < barData.spots.length; i++) {
       final spot = barData.spots[i];
-      if (spot.isNotNull() && barData.dotData.checkToShowDot(spot, barData)) {
+      if (spot.isNotNull() && barData.dotData.checkToShowDot(spot, barData) ||
+          spot.isTouched) {
         final x = getPixelX(spot.x, viewSize, holder);
         final y = getPixelY(spot.y, viewSize, holder);
         final xPercentInLine = (x / barXDelta) * 100;

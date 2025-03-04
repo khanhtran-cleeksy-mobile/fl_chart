@@ -166,6 +166,9 @@ class PieChartSectionData with EquatableMixin {
     this.badgeWidget,
     double? titlePositionPercentageOffset,
     double? badgePositionPercentageOffset,
+    this.isTouched = false,
+    this.touchedRadius = 0,
+    this.marginTouchedRadius = 5,
   })  : value = value ?? 10,
         color = color ?? Colors.cyan,
         radius = radius ?? 40,
@@ -174,6 +177,10 @@ class PieChartSectionData with EquatableMixin {
         borderSide = borderSide ?? const BorderSide(width: 0),
         titlePositionPercentageOffset = titlePositionPercentageOffset ?? 0.5,
         badgePositionPercentageOffset = badgePositionPercentageOffset ?? 0.5;
+
+  final bool isTouched;
+  final double touchedRadius;
+  final double marginTouchedRadius;
 
   /// It determines how much space it should occupy around the circle.
   ///
@@ -238,6 +245,9 @@ class PieChartSectionData with EquatableMixin {
     Widget? badgeWidget,
     double? titlePositionPercentageOffset,
     double? badgePositionPercentageOffset,
+    bool? isTouched,
+    double? touchedRadius,
+    double? marginTouchedRadius,
   }) =>
       PieChartSectionData(
         value: value ?? this.value,
@@ -253,6 +263,9 @@ class PieChartSectionData with EquatableMixin {
             titlePositionPercentageOffset ?? this.titlePositionPercentageOffset,
         badgePositionPercentageOffset:
             badgePositionPercentageOffset ?? this.badgePositionPercentageOffset,
+        isTouched: isTouched ?? this.isTouched,
+        touchedRadius: touchedRadius ?? this.touchedRadius,
+        marginTouchedRadius: marginTouchedRadius ?? this.marginTouchedRadius,
       );
 
   /// Lerps a [PieChartSectionData] based on [t] value, check [Tween.lerp].
@@ -281,6 +294,10 @@ class PieChartSectionData with EquatableMixin {
           b.badgePositionPercentageOffset,
           t,
         ),
+        isTouched: b.isTouched,
+        touchedRadius: lerpDouble(a.touchedRadius, b.touchedRadius, t) ?? 0,
+        marginTouchedRadius:
+            lerpDouble(a.marginTouchedRadius, b.marginTouchedRadius, t) ?? 0,
       );
 
   /// Used for equality check, see [EquatableMixin].
@@ -297,6 +314,9 @@ class PieChartSectionData with EquatableMixin {
         badgeWidget,
         titlePositionPercentageOffset,
         badgePositionPercentageOffset,
+        isTouched,
+        touchedRadius,
+        marginTouchedRadius,
       ];
 }
 

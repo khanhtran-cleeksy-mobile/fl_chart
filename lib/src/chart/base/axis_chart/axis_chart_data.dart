@@ -491,12 +491,14 @@ class FlSpot {
     this.y, {
     this.xError,
     this.yError,
+    this.isTouched = false,
   });
 
   final double x;
   final double y;
   final FlErrorRange? xError;
   final FlErrorRange? yError;
+  final bool isTouched;
 
   /// Copies current [FlSpot] to a new [FlSpot],
   /// and replaces provided values.
@@ -511,6 +513,7 @@ class FlSpot {
         y ?? this.y,
         xError: xError ?? this.xError,
         yError: yError ?? this.yError,
+        isTouched: isTouched,
       );
 
   ///Prints x and y coordinates of FlSpot list
@@ -544,6 +547,7 @@ class FlSpot {
       lerpDouble(a.y, b.y, t)!,
       xError: FlErrorRange.lerp(a.xError, b.xError, t),
       yError: FlErrorRange.lerp(a.yError, b.yError, t),
+      isTouched: b.isTouched,
     );
   }
 

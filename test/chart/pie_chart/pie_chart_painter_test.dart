@@ -647,6 +647,7 @@ void main() {
           data.sections[0],
           MockData.path1,
           mockCanvasWrapper,
+          
         )
         ..drawSection(
           data.sections[1],
