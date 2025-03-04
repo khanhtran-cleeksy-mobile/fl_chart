@@ -1,6 +1,4 @@
-# BarChart
-
-<img src="https://github.com/imaNNeo/fl_chart/raw/main/repo_files/images/bar_chart/bar_chart.jpg" width="300" >
+<a href="https://www.youtube.com/watch?v=vYe0RY1nCAA&list=PL1-_rCwRcnbNpvodmbt43O81wMUdBv8-a"><img src="https://github.com/imaNNeo/fl_chart/raw/main/repo_files/images/bar_chart/bar_chart_video_thumbnail.png" width=540></a>
 
 ### How to use
 ```dart
@@ -8,20 +6,20 @@ BarChart(
   BarChartData(
     // read about it in the BarChartData section
   ),
-  swapAnimationDuration: Duration(milliseconds: 150), // Optional
-  swapAnimationCurve: Curves.linear, // Optional
+  duration: Duration(milliseconds: 150), // Optional
+  curve: Curves.linear, // Optional
 );
 ```
 
 ### Implicit Animations
-When you change the chart's state, it animates to the new state internally (using [implicit animations](https://flutter.dev/docs/development/ui/animations/implicit-animations)). You can control the animation [duration](https://api.flutter.dev/flutter/dart-core/Duration-class.html) and [curve](https://api.flutter.dev/flutter/animation/Curves-class.html) using optional `swapAnimationDuration` and `swapAnimationCurve` properties, respectively.
+When you change the chart's state, it animates to the new state internally (using [implicit animations](https://flutter.dev/docs/development/ui/animations/implicit-animations)). You can control the animation [duration](https://api.flutter.dev/flutter/dart-core/Duration-class.html) and [curve](https://api.flutter.dev/flutter/animation/Curves-class.html) using optional `duration` and `curve` properties, respectively.
 
 ### BarChartData
 |PropName		|Description	|default value|
 |:---------------|:---------------|:-------|
 |barGroups| list of [BarChartGroupData ](#BarChartGroupData) to show the bar lines together, you can provide one item per group to show normal bar chart|[]|
 |groupsSpace| space between groups, it applies only when the [alignment](#BarChartAlignment) is `BarChartAlignment.start`, `BarChartAlignment.center` or `BarChartAlignment.end`|16|
-|alignment| a [BarChartAlignment](#BarChartAlignment) that determines the alignment of the barGroups, inspired by [Flutter MainAxisAlignment](https://docs.flutter.io/flutter/rendering/MainAxisAlignment-class.html)| BarChartAlignment.spaceBetween|
+|alignment| a [BarChartAlignment](#BarChartAlignment) that determines the alignment of the barGroups, inspired by [Flutter MainAxisAlignment](https://docs.flutter.io/flutter/rendering/MainAxisAlignment-class.html)| BarChartAlignment.spaceEvenly|
 |titlesData| check the [FlTitlesData](base_chart.md#FlTitlesData)|FlTitlesData()|
 |axisTitleData| check the [FlAxisTitleData](base_chart.md#FlAxisTitleData)| FlAxisTitleData()|
 |rangeAnnotations| show range annotations behind the chart, check [RangeAnnotations](base_chart.md#RangeAnnotations) | RangeAnnotations()|
@@ -29,11 +27,12 @@ When you change the chart's state, it animates to the new state internally (usin
 |barTouchData| [BarTouchData](#bartouchdata-read-about-touch-handling) holds the touch interactivity details|BarTouchData()|
 |gridData| check the [FlGridData](base_chart.md#FlGridData)|FlGridData()|
 |borderData| check the [FlBorderData](base_chart.md#FlBorderData)|FlBorderData()|
-|maxY| gets maximum y of y axis, if null, value will be read from the input barGroups | null|
-|minY| gets minimum y of y axis, if null, value will be read from the input barGroups | null|
+|maxY| gets maximum y of y axis, if null, value will be read from the input barGroups (But it is more performant if you provide them) | null|
+|minY| gets minimum y of y axis, if null, value will be read from the input barGroups (But it is more performant if you provide them) | null|
 |baselineY| defines the baseline of y-axis | 0|
 |extraLinesData| allows extra horizontal lines to be drawn on the chart. Vertical lines are ignored when used with BarChartData, please see [#1149](https://github.com/imaNNeo/fl_chart/issues/1149), check [ExtraLinesData](base_chart.md#ExtraLinesData)|ExtraLinesData()|
-
+|rotationQuarterTurns|Rotates the chart 90 degrees (clockwise) in every quarter turns. This feature works like the [RotatedBox](https://api.flutter.dev/flutter/widgets/RotatedBox-class.html) widget. You can have horizontal BarChart by changing this value to |0|
+|errorIndicatorData|Holds data for representing an error indicator (you see the error indicators if you provide the `toYErrorRange` in the [BarChartRodData](#BarChartRodData))|[ErrorIndicatorData()](base_chart.md#FlErrorIndicatorData)|
 
 ### BarChartGroupData
 |PropName		|Description	|default value|
@@ -41,7 +40,7 @@ When you change the chart's state, it animates to the new state internally (usin
 |x| x position of the group on horizontal axis|null|
 |barRods| list of [BarChartRodData](#BarChartRodData) that are a bar line| []
 |barsSpace| the space between barRods of the group|2|
-|showingTooltipIndicators| indexes of barRods to show the tooltip on top of them | []|
+|showingTooltipIndicators| indexes of barRods to show the tooltip on top of them, The point is that you need to disable touches to show these tooltips manually | []|
 
 
 ### BarChartAlignment
@@ -61,7 +60,7 @@ enum values {`start`, `end`, `center`, `spaceEvenly`, `spaceAround`, `spaceBetwe
 |borderSide|Determines the border stroke around of the bar, see [BorderSide](https://api.flutter.dev/flutter/painting/BorderSide-class.html). When `null`, it defaults to draw no stroke. |null|
 |backDrawRodData|if provided, draws a rod in the background of the line bar, check the [BackgroundBarChartRodData](#BackgroundBarChartRodData)|null|
 |rodStackItem|if you want to have stacked bar chart, provide a list of [BarChartRodStackItem](#BarChartRodStackItem), it will draw over your rod.|[]|
-
+|toYErrorRange|If you want to show an error range on the rod, provide [FlErrorRange](base_chart.md#FlErrorRange)|null|
 
 ### BackgroundBarChartRodData
 |PropName|Description|default value|

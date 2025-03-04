@@ -109,7 +109,64 @@ void main() {
         mockCanvasWrapper.drawCircle(const Offset(100, 100), 10, captureAny),
       );
       expect(result.callCount, 1);
-      expect((result.captured.first as Paint).color, MockData.color1);
+      expect(
+        (result.captured.first as Paint).color,
+        isSameColorAs(MockData.color1),
+      );
+    });
+  });
+
+  group('drawTexts()', () {
+    test('test 1', () {
+      final utilsMainInstance = Utils();
+      const viewSize = Size(200, 200);
+
+      final data = PieChartData(
+        sections: List.generate(2, (i) {
+          return PieChartSectionData(
+            value: 10,
+            title: '$i%',
+          );
+        }),
+        titleSunbeamLayout: true,
+      );
+
+      final pieChartPainter = PieChartPainter();
+      final holder =
+          PaintHolder<PieChartData>(data, data, TextScaler.noScaling);
+
+      final mockBuildContext = MockBuildContext();
+      final mockCanvasWrapper = MockCanvasWrapper();
+      when(mockCanvasWrapper.size).thenAnswer((realInvocation) => viewSize);
+      when(mockCanvasWrapper.canvas).thenReturn(MockCanvas());
+
+      final mockUtils = MockUtils();
+      Utils.changeInstance(mockUtils);
+      when(mockUtils.getThemeAwareTextStyle(any, any))
+          .thenAnswer((realInvocation) => textStyle1);
+      when(mockUtils.radians(any)).thenAnswer((realInvocation) => 12);
+
+      final centerRadius = pieChartPainter.calculateCenterRadius(
+        viewSize,
+        holder,
+      );
+
+      pieChartPainter.drawTexts(
+        mockBuildContext,
+        mockCanvasWrapper,
+        holder,
+        centerRadius,
+      );
+
+      final results = verifyInOrder([
+        mockCanvasWrapper.drawText(any, any, captureAny),
+        mockCanvasWrapper.drawText(any, any, captureAny),
+      ]);
+
+      expect(results[0].captured.single, -90);
+      expect(results[1].captured.single, 90);
+
+      Utils.changeInstance(utilsMainInstance);
     });
   });
 
@@ -166,7 +223,10 @@ void main() {
       ]);
       final result = results[1];
       expect(result.callCount, 1);
-      expect((result.captured.single as Paint).color, MockData.color2);
+      expect(
+        (result.captured.single as Paint).color,
+        isSameColorAs(MockData.color2),
+      );
       expect((result.captured.single as Paint).style, PaintingStyle.fill);
 
       final result2 = verify(
@@ -177,7 +237,10 @@ void main() {
         ),
       );
       expect(result2.callCount, 1);
-      expect((result2.captured.single as Paint).color, MockData.color3);
+      expect(
+        (result2.captured.single as Paint).color,
+        isSameColorAs(MockData.color3),
+      );
       expect((result2.captured.single as Paint).strokeWidth, 3);
       expect((result2.captured.single as Paint).style, PaintingStyle.stroke);
     });
@@ -236,7 +299,10 @@ void main() {
         HelperMethods.equalsPaths(results[0]['path'] as Path, path0),
         true,
       );
-      expect(results[0]['paint_color'] as Color, MockData.color1);
+      expect(
+        results[0]['paint_color'] as Color,
+        isSameColorAs(MockData.color1),
+      );
       expect(results[0]['paint_style'] as PaintingStyle, PaintingStyle.fill);
 
       final path1 = barChartPainter.generateSectionPath(
@@ -251,7 +317,10 @@ void main() {
         HelperMethods.equalsPaths(results[1]['path'] as Path, path1),
         true,
       );
-      expect(results[1]['paint_color'] as Color, MockData.color2);
+      expect(
+        results[1]['paint_color'] as Color,
+        isSameColorAs(MockData.color2),
+      );
       expect(results[1]['paint_style'] as PaintingStyle, PaintingStyle.fill);
 
       final path2 = barChartPainter.generateSectionPath(
@@ -266,7 +335,10 @@ void main() {
         HelperMethods.equalsPaths(results[2]['path'] as Path, path2),
         true,
       );
-      expect(results[2]['paint_color'] as Color, MockData.color3);
+      expect(
+        results[2]['paint_color'] as Color,
+        isSameColorAs(MockData.color3),
+      );
       expect(results[2]['paint_style'] as PaintingStyle, PaintingStyle.fill);
 
       final path3 = barChartPainter.generateSectionPath(
@@ -281,7 +353,10 @@ void main() {
         HelperMethods.equalsPaths(results[3]['path'] as Path, path3),
         true,
       );
-      expect(results[3]['paint_color'] as Color, MockData.color4);
+      expect(
+        results[3]['paint_color'] as Color,
+        isSameColorAs(MockData.color4),
+      );
       expect(results[3]['paint_style'] as PaintingStyle, PaintingStyle.fill);
     });
   });
@@ -593,19 +668,31 @@ void main() {
       expect(results.length, 4);
 
       expect(results[0]['path'] as Path, MockData.path1);
-      expect(results[0]['paint_color'] as Color, MockData.color1);
+      expect(
+        results[0]['paint_color'] as Color,
+        isSameColorAs(MockData.color1),
+      );
       expect(results[0]['paint_style'] as PaintingStyle, PaintingStyle.fill);
 
       expect(results[1]['path'] as Path, MockData.path2);
-      expect(results[1]['paint_color'] as Color, MockData.color2);
+      expect(
+        results[1]['paint_color'] as Color,
+        isSameColorAs(MockData.color2),
+      );
       expect(results[1]['paint_style'] as PaintingStyle, PaintingStyle.fill);
 
       expect(results[2]['path'] as Path, MockData.path3);
-      expect(results[2]['paint_color'] as Color, MockData.color3);
+      expect(
+        results[2]['paint_color'] as Color,
+        isSameColorAs(MockData.color3),
+      );
       expect(results[2]['paint_style'] as PaintingStyle, PaintingStyle.fill);
 
       expect(results[3]['path'] as Path, MockData.path4);
-      expect(results[3]['paint_color'] as Color, MockData.color4);
+      expect(
+        results[3]['paint_color'] as Color,
+        isSameColorAs(MockData.color4),
+      );
       expect(results[3]['paint_style'] as PaintingStyle, PaintingStyle.fill);
     });
   });
@@ -766,7 +853,10 @@ void main() {
       expect(drawPathResults.length, 4);
 
       expect(drawPathResults[0]['path'], MockData.path1);
-      expect(drawPathResults[0]['paint_color'], MockData.color1);
+      expect(
+        drawPathResults[0]['paint_color'],
+        isSameColorAs(MockData.color1),
+      );
       expect(drawPathResults[0]['paint_style'], PaintingStyle.stroke);
       expect(
         drawPathResults[0]['paint_stroke_width'],
@@ -774,7 +864,10 @@ void main() {
       );
 
       expect(drawPathResults[1]['path'], MockData.path2);
-      expect(drawPathResults[1]['paint_color'], MockData.color2);
+      expect(
+        drawPathResults[1]['paint_color'],
+        isSameColorAs(MockData.color2),
+      );
       expect(drawPathResults[1]['paint_style'], PaintingStyle.stroke);
       expect(
         drawPathResults[1]['paint_stroke_width'],
@@ -782,7 +875,10 @@ void main() {
       );
 
       expect(drawPathResults[2]['path'], MockData.path3);
-      expect(drawPathResults[2]['paint_color'], MockData.color3);
+      expect(
+        drawPathResults[2]['paint_color'],
+        isSameColorAs(MockData.color3),
+      );
       expect(drawPathResults[2]['paint_style'], PaintingStyle.stroke);
       expect(
         drawPathResults[2]['paint_stroke_width'],
@@ -790,7 +886,10 @@ void main() {
       );
 
       expect(drawPathResults[3]['path'], MockData.path4);
-      expect(drawPathResults[3]['paint_color'], MockData.color4);
+      expect(
+        drawPathResults[3]['paint_color'],
+        isSameColorAs(MockData.color4),
+      );
       expect(drawPathResults[3]['paint_style'], PaintingStyle.stroke);
       expect(
         drawPathResults[3]['paint_stroke_width'],
