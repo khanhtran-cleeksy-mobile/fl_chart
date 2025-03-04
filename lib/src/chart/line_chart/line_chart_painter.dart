@@ -1389,18 +1389,17 @@ class LineChartPainter extends AxisChartPainter<LineChartData> {
     double? smallestDistance;
     for (final spot in barData.spots) {
       if (spot.isNull()) continue;
-      final distance = data.lineTouchData.distanceCalculator(
+      final distance = distanceCalculator(
         touchedPoint,
         Offset(
           getPixelX(spot.x, viewSize, holder),
           getPixelY(spot.y, viewSize, holder),
         ),
       );
-
-      if (distance <= data.lineTouchData.touchSpotThreshold) {
+      if (distance.abs() <= data.lineTouchData.touchSpotThreshold) {
         smallestDistance ??= distance;
 
-        if (distance < smallestDistance) {
+        if (distance.abs() < smallestDistance.abs()) {
           sortedSpots.insert(0, spot);
           smallestDistance = distance;
         } else {
@@ -1453,6 +1452,11 @@ class LineChartPainter extends AxisChartPainter<LineChartData> {
     }
     return dotHeight ?? 0;
   }
+
+  double distanceCalculator(Offset touchedPoint, Offset offset) {
+    return touchedPoint.dx - offset.dx;
+  }
+
 }
 
 @visibleForTesting
