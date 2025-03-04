@@ -19,23 +19,33 @@ class ChartSamplesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: MasonryGridView.builder(
-        itemCount: samples[chartType]!.length,
-        key: ValueKey(chartType),
-        padding: const EdgeInsets.only(
-          left: AppDimens.chartSamplesSpace,
-          right: AppDimens.chartSamplesSpace,
-          top: AppDimens.chartSamplesSpace,
-          bottom: AppDimens.chartSamplesSpace + 68,
-        ),
-        crossAxisSpacing: AppDimens.chartSamplesSpace,
-        mainAxisSpacing: AppDimens.chartSamplesSpace,
-        itemBuilder: (BuildContext context, int index) {
-          return ChartHolder(chartSample: samples[chartType]![index]);
-        },
-        gridDelegate: const SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 600,
-        ),
+      body: PageView(
+        controller: PageController(),
+        children: [
+          MasonryGridView.builder(
+            itemCount: samples[chartType]!.length,
+            key: ValueKey(chartType),
+            padding: const EdgeInsets.only(
+              left: AppDimens.chartSamplesSpace,
+              right: AppDimens.chartSamplesSpace,
+              top: AppDimens.chartSamplesSpace,
+              bottom: AppDimens.chartSamplesSpace + 68,
+            ),
+            crossAxisSpacing: AppDimens.chartSamplesSpace,
+            mainAxisSpacing: AppDimens.chartSamplesSpace,
+            itemBuilder: (BuildContext context, int index) {
+              return ChartHolder(chartSample: samples[chartType]![index]);
+            },
+            gridDelegate: const SliverSimpleGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 600,
+            ),
+          ),
+          Container(
+            height: 500,
+            width: 300,
+            color: Colors.amber,
+          ),
+        ],
       ),
     );
   }

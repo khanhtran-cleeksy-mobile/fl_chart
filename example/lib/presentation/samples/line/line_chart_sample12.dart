@@ -24,6 +24,11 @@ class _LineChartSample12State extends State<LineChartSample12> {
   void initState() {
     _reloadData();
     _transformationController = TransformationController();
+    _transformationController.value *= Matrix4.diagonal3Values(
+      300,
+      300,
+      1,
+    );
     super.initState();
   }
 
@@ -114,7 +119,7 @@ class _LineChartSample12State extends State<LineChartSample12> {
                 minScale: 1.0,
                 maxScale: 25.0,
                 panEnabled: _isPanEnabled,
-                scaleEnabled: _isScaleEnabled,
+                scaleEnabled: false,
                 transformationController: _transformationController,
               ),
               LineChartData(

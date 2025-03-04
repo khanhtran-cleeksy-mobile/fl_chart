@@ -539,24 +539,10 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
     };
   }
 
-  // Decide which type of gesture this is by comparing the amount of scale
-  // and rotation in the gesture, if any. Scale starts at 1 and rotation
-  // starts at 0. Pan will have no scale and no rotation because it uses only one
-  // finger.
-  _GestureType _getGestureType(ScaleUpdateDetails details) {
-    final scale = !widget.scaleEnabled ? 1.0 : details.scale;
-    if (scale != 1) {
-      return _GestureType.scale;
-    } else {
-      return _GestureType.pan;
-    }
-  }
 
   // Handle the start of a gesture. All of pan, scale, and rotate are handled
   // with GestureDetector's scale gesture.
-  void _onScaleStart(ScaleStartDetails details) {
-    widget.onInteractionStart?.call(details);
-
+  void _onScaleStart(DragStartDetails details) {
     if (_controller.isAnimating) {
       _controller
         ..stop()
@@ -576,32 +562,21 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
     _currentAxis = null;
     _scaleStart = _transformationController!.value.getMaxScaleOnAxis();
     _referenceFocalPoint = _transformationController!.toScene(
-      details.localFocalPoint,
+      details.localPosition,
     );
   }
 
   // Handle an update to an ongoing gesture. All of pan, scale, and rotate are
   // handled with GestureDetector's scale gesture.
-  void _onScaleUpdate(ScaleUpdateDetails details) {
+  void _onScaleUpdate(DragUpdateDetails details) {
     final scale = _transformationController!.value.getMaxScaleOnAxis();
-    _scaleAnimationFocalPoint = details.localFocalPoint;
+    _scaleAnimationFocalPoint = details.localPosition;
     final focalPointScene = _transformationController!.toScene(
-      details.localFocalPoint,
+      details.localPosition,
     );
 
-    if (_gestureType == _GestureType.pan) {
-      // When a gesture first starts, it sometimes has no change in scale and
-      // rotation despite being a two-finger gesture. Here the gesture is
-      // allowed to be reinterpreted as its correct type after originally
-      // being marked as a pan.
-      _gestureType = _getGestureType(details);
-    } else {
-      _gestureType ??= _getGestureType(details);
-    }
-    if (!_gestureIsSupported(_gestureType)) {
-      widget.onInteractionUpdate?.call(details);
-      return;
-    }
+    _gestureType = _GestureType.pan;
+
 
     switch (_gestureType!) {
       case _GestureType.scale:
@@ -609,7 +584,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
         // details.scale gives us the amount to change the scale as of the
         // start of this gesture, so calculate the amount to scale as of the
         // previous call to _onScaleUpdate.
-        final desiredScale = _scaleStart! * details.scale;
+        final desiredScale = _scaleStart! * 1;
         final scaleChange = desiredScale / scale;
         _transformationController!.value = _matrixScale(
           _transformationController!.value,
@@ -621,7 +596,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
         // the scale should be on the same place in the scene before and after
         // the scale.
         final focalPointSceneScaled = _transformationController!.toScene(
-          details.localFocalPoint,
+          details.localPosition,
         );
         _transformationController!.value = _matrixTranslate(
           _transformationController!.value,
@@ -634,7 +609,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
         // _referenceFocalPoint so subsequent updates happen in relation to
         // the new effective focal point.
         final focalPointSceneCheck = _transformationController!.toScene(
-          details.localFocalPoint,
+          details.localPosition,
         );
         if (_round(_referenceFocalPoint!) != _round(focalPointSceneCheck)) {
           _referenceFocalPoint = focalPointSceneCheck;
@@ -645,10 +620,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
         // details may have a change in scale here when scaleEnabled is false.
         // In an effort to keep the behavior similar whether or not scaleEnabled
         // is true, these gestures are thrown away.
-        if (details.scale != 1.0) {
-          widget.onInteractionUpdate?.call(details);
-          return;
-        }
+
         _currentAxis ??= _getPanAxis(_referenceFocalPoint!, focalPointScene);
         // Translate so that the same point in the scene is underneath the
         // focal point before and after the movement.
@@ -658,16 +630,14 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
           translationChange,
         );
         _referenceFocalPoint = _transformationController!.toScene(
-          details.localFocalPoint,
+          details.localPosition,
         );
     }
-    widget.onInteractionUpdate?.call(details);
   }
 
   // Handle the end of a gesture of _GestureType. All of pan, scale, and rotate
   // are handled with GestureDetector's scale gesture.
-  void _onScaleEnd(ScaleEndDetails details) {
-    widget.onInteractionEnd?.call(details);
+  void _onScaleEnd(DragEndDetails details) {
     _scaleStart = null;
     _referenceFocalPoint = null;
 
@@ -717,18 +687,15 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
         _animation!.addListener(_onAnimate);
         _controller.forward();
       case _GestureType.scale:
-        if (details.scaleVelocity.abs() < 0.1) {
-          _currentAxis = null;
-          return;
-        }
+
         final scale = _transformationController!.value.getMaxScaleOnAxis();
         final frictionSimulation = FrictionSimulation(
           widget.interactionEndFrictionCoefficient * widget.scaleFactor,
           scale,
-          details.scaleVelocity / 10,
+          1 / 10,
         );
         final tFinal = _getFinalTime(
-          details.scaleVelocity.abs(),
+          1,
           widget.interactionEndFrictionCoefficient,
           effectivelyMotionless: 0.1,
         );
@@ -1026,9 +993,9 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer>
       onPointerSignal: _receivedPointerSignal,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque, // Necessary when panning off screen.
-        onScaleEnd: _onScaleEnd,
-        onScaleStart: _onScaleStart,
-        onScaleUpdate: _onScaleUpdate,
+        onHorizontalDragEnd: _onScaleEnd,
+        onHorizontalDragStart: _onScaleStart,
+        onHorizontalDragUpdate: _onScaleUpdate,
         trackpadScrollCausesScale: widget.trackpadScrollCausesScale,
         trackpadScrollToScaleFactor: Offset(0, -1 / widget.scaleFactor),
         child: child,
